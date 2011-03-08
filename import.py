@@ -25,15 +25,18 @@ class ImportWoS:
     def clean_publication_issue(self):
         self.publication = {}
         self.issue = {}
-        self.disciplines = []
         
     def clean_article(self):
         self.article = {}
         self.authors = []
         self.keywords = []
         self.citations = []
+        self.organizations = []
         
     def clean_organization(self):
+        if hasattr(self, 'organization'):
+            if self.organization != {}:
+                self.organizations.append(self.organization.copy())
         self.organization = {}
 
     def pub_id(self):
@@ -139,6 +142,41 @@ class ImportWoS:
 
         cur.close()
 
+    def org_id(self, org):
+        cur = self.conn.cursor()
+
+        cur.execute("SELECT id FROM organizations WHERE name=?", (org['name'],))
+        row = cur.fetchone()
+        province_state = ''
+        if province_state in org:
+            province_state = org['province_state']
+        postal_code = ''
+        if postal_code in org:
+            postal_code = org['postal_code']
+        if row is None:
+            cur.execute("INSERT INTO organizations (name, city, province_state, country, postal_code) VALUES (?, ?, ?, ?, ?)",
+                (org['name'],
+                org['city'],
+                province_state,
+                org['country'],
+                postal_code))
+            id = cur.lastrowid
+            cur.close()
+            return id
+        else:
+            cur.close()
+            return row[0]
+
+    def write_orgs(self, article_id):
+        cur = self.conn.cursor()
+
+        for org in self.organizations:
+            oid = self.org_id(org)
+            cur.execute("INSERT INTO article_organization (article_id, organization_id) VALUES (?, ?)",
+                (article_id, oid))
+
+        cur.close()
+
     def write_article(self):
         
         cur = self.conn.cursor()
@@ -164,6 +202,7 @@ class ImportWoS:
         self.write_authors(article_id)
         self.write_keywords(article_id)
         self.write_citations(article_id)
+        self.write_orgs(article_id)
         
         self.conn.commit()
         cur.close()
@@ -190,10 +229,6 @@ class ImportWoS:
             self.publication['iso_title'] = self.data
         elif tag == 'SN':
             self.publication['ISSN'] = self.data
-            
-        # discipline
-        elif tag == 'SC':
-            self.disciplines.append(self.data)
     
         # issue
         elif tag == 'UI':

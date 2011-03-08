@@ -73,6 +73,19 @@ def create_db(dbpath):
     safe_execute(cur, "ALTER TABLE citations ADD COLUMN targ_id INTEGER")
     safe_execute(cur, "ALTER TABLE citations ADD COLUMN orig_wosid TEXT")
     safe_execute(cur, "ALTER TABLE citations ADD COLUMN targ_wosid TEXT")
+    
+    # create organizations table
+    safe_execute(cur, "CREATE TABLE organizations (id INTEGER PRIMARY KEY)")
+    safe_execute(cur, "ALTER TABLE organizations ADD COLUMN name TEXT")
+    safe_execute(cur, "ALTER TABLE organizations ADD COLUMN city TEXT")
+    safe_execute(cur, "ALTER TABLE organizations ADD COLUMN province_state TEXT")
+    safe_execute(cur, "ALTER TABLE organizations ADD COLUMN country TEXT")
+    safe_execute(cur, "ALTER TABLE organizations ADD COLUMN postal_code TEXT")
+    
+    # create article_organization table
+    safe_execute(cur, "CREATE TABLE article_organization (id INTEGER PRIMARY KEY)")
+    safe_execute(cur, "ALTER TABLE article_organization ADD COLUMN article_id INTEGER")
+    safe_execute(cur, "ALTER TABLE article_organization ADD COLUMN organization_id INTEGER")
         
     # indexes
     #self.safe_execute(cur, "CREATE INDEX link_blog_orig_targ ON link (blog_orig, blog_targ)")
