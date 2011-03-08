@@ -82,6 +82,30 @@ class ImportWoS:
             cur.close()
             return row[0]
 
+    def author_id(self, author_name):
+        cur = self.conn.cursor()
+        
+        cur.execute("SELECT id FROM authors WHERE name=?", (author_name,))
+        row = cur.fetchone()
+        if row is None:
+            cur.execute("INSERT INTO authors (name) VALUES (?)", (author_name,))
+            id = cur.lastrowid
+            cur.close()
+            return id
+        else:
+            cur.close()
+            return row[0]
+
+    def write_authors(self, article_id):
+        cur = self.conn.cursor()
+        
+        for author_name in self.authors:
+            aid = self.author_id(author_name)
+            cur.execute("INSERT INTO article_author (article_id, author_id) VALUES (?, ?)",
+                (article_id, aid))
+
+        cur.close()
+
     def write_article(self):
         
         cur = self.conn.cursor()
@@ -101,6 +125,10 @@ class ImportWoS:
             self.article['end_page'],
             self.article['page_count'],
             self.article['language']))
+        
+        article_id = cur.lastrowid
+        
+        self.write_authors(article_id)
         
         self.conn.commit()
         cur.close()
