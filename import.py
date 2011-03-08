@@ -31,7 +31,7 @@ class ImportWoS:
         self.article = {}
         self.authors = []
         self.keywords = []
-        self.references = []
+        self.citations = []
         
     def clean_organization(self):
         self.organization = {}
@@ -105,6 +105,15 @@ class ImportWoS:
                 (article_id, aid))
 
         cur.close()
+        
+    def write_citations(self, article_id):
+        cur = self.conn.cursor()
+        
+        for targ_wosid in self.citations:
+            cur.execute("INSERT INTO citations (orig_id, targ_id, orig_wosid, targ_wosid) VALUES (?, ?, ?, ?)",
+                (article_id, -1, self.article['id'], targ_wosid))
+        
+        cur.close()
 
     def keyword_id(self, keyword):
         cur = self.conn.cursor()
@@ -154,6 +163,7 @@ class ImportWoS:
         
         self.write_authors(article_id)
         self.write_keywords(article_id)
+        self.write_citations(article_id)
         
         self.conn.commit()
         cur.close()
@@ -247,7 +257,7 @@ class ImportWoS:
         
         # cited reference
         elif tag == 'R9':
-            self.references.append(self.data)
+            self.citations.append(self.data)
         
         self.tag = nexttag
         self.data = nextdata

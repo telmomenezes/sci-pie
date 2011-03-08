@@ -70,7 +70,9 @@ def create_db(dbpath):
     # create citations table
     safe_execute(cur, "CREATE TABLE citations (id INTEGER PRIMARY KEY)")
     safe_execute(cur, "ALTER TABLE citations ADD COLUMN orig_id INTEGER")
-    safe_execute(cur, "ALTER TABLE citations ADD COLUMN target_id INTEGER")
+    safe_execute(cur, "ALTER TABLE citations ADD COLUMN targ_id INTEGER")
+    safe_execute(cur, "ALTER TABLE citations ADD COLUMN orig_wosid TEXT")
+    safe_execute(cur, "ALTER TABLE citations ADD COLUMN targ_wosid TEXT")
         
     # indexes
     #self.safe_execute(cur, "CREATE INDEX link_blog_orig_targ ON link (blog_orig, blog_targ)")
