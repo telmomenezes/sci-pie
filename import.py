@@ -33,6 +33,9 @@ class ImportWoS:
         self.clean_publication_issue()
         self.clean_article()
         self.clean_organization()
+        
+        self.file_count = 0
+        self.article_count = 0
 
     def clean_publication_issue(self):
         self.publication = {}
@@ -212,7 +215,8 @@ class ImportWoS:
         self.conn.commit()
         cur.close()
         
-        print "Article:", self.article['title'] 
+        self.article_count += 1
+        print ("Article #%d (file #%d): %s" % (self.article_count, self.file_count, self.article['title'])) 
 
     def process(self, newtag, newdata):
         if newtag == '--':
@@ -376,7 +380,8 @@ class ImportWoS:
         cur2.close()
 
     def process_file(self, filepath):
-        print("Processing file: %s" % filepath)
+        self.file_count += 1
+        print("Processing file #%d: %s" % (self.file_count, filepath))
         fd = open(filepath)
         line = fd.readline()
         while (line != "" ):
@@ -415,5 +420,5 @@ class ImportWoS:
 
 
 if __name__ == '__main__':
-    ImportWoS('mdts11.db', '/Users/telmo/Desktop/mdts11_raw').run()
+    ImportWoS(sys.argv[1], sys.argv[2]).run()
 
