@@ -263,6 +263,24 @@ class ImportWoS:
         self.data = nextdata
     
 
+    def postprocess_citations(self):
+        cur = self.conn.cursor()
+        cur2 = self.conn.cursor()
+        
+        cur.execute("SELECT id, targ_wosid FROM citations")
+        for row in cur:
+            cit_id = row[0]
+            targ_wosid = row[1]
+            cur2.execute("SELECT id FROM articles WHERE wos_id=?", (targ_wosid,))
+            row2 = cur2.fetchone()
+            if row2 is not None:
+                targ_id = row2[0]
+                cur2.execute("UPDATE citations SET targ_id=? WHERE id=?", (targ_id, cit_id))
+        
+        self.conn.commit()
+        cur.close()
+        cur2.close()
+
     def main(self):
         self.conn = sqlite3.connect('mdts11.db')
         
@@ -275,6 +293,11 @@ class ImportWoS:
             line = fd.readline()
         self.process('', '')
 
+        print("Postprocessing citations.")
+        self.postprocess_citations()
+
+        print("Done.")
+        
         self.conn.close()
 
 
