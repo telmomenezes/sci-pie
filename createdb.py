@@ -36,6 +36,7 @@ def create_db(dbpath):
     safe_execute(cur, "ALTER TABLE issues ADD COLUMN date TEXT")
     safe_execute(cur, "ALTER TABLE issues ADD COLUMN volume INTEGER")
     safe_execute(cur, "ALTER TABLE issues ADD COLUMN issue INTEGER")
+    safe_execute(cur, "ALTER TABLE issues ADD COLUMN timestamp REAL")
 
     # create articles table
     safe_execute(cur, "CREATE TABLE articles (id INTEGER PRIMARY KEY)")

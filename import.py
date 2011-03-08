@@ -10,6 +10,8 @@ Copyright (c) 2011 Telmo Menezes. All rights reserved.
 import sys
 import os
 import sqlite3
+import datetime
+import time
 
 
 class ImportWoS:
@@ -316,6 +318,60 @@ class ImportWoS:
         cur.close()
         cur2.close()
 
+    def str2month(self, str):
+        if str == 'JAN':
+            return 1
+        elif str == 'FEB':
+            return 2
+        elif str == 'MAR':
+            return 3
+        elif str == 'APR':
+            return 4
+        elif str == 'MAY':
+            return 5
+        elif str == 'JUN':
+            return 6
+        elif str == 'JUL':
+            return 7
+        elif str == 'AUG':
+            return 8
+        elif str == 'SEP':
+            return 9
+        elif str == 'OCT':
+            return 10
+        elif str == 'NOV':
+            return 11
+        elif str == 'DEC':
+            return 12
+            
+        return 1
+
+    def postprocess_timestamps(self):
+        cur = self.conn.cursor()
+        cur2 = self.conn.cursor()
+        
+        cur.execute("SELECT id, date, year FROM issues")
+        for row in cur:
+            issue_id = row[0]
+            date = row[1]
+            year = row[2]
+            month = 1
+            day = 1
+            date_comps = date.split(' ')
+            if len(date_comps) > 0:
+                if len(date_comps[0]) >= 3:
+                    month = self.str2month(date_comps[0][:3])
+                if len(date_comps) > 1:
+                    day = int(date_comps[1])
+            
+            d = datetime.date(year, month, day)
+            ts = time.mktime(d.timetuple())
+            cur2.execute("UPDATE issues SET timestamp=? WHERE id=?", (ts, issue_id))
+        
+        self.conn.commit()
+        cur.close()
+        cur2.close()
+
     def main(self):
         self.conn = sqlite3.connect('mdts11.db')
         
@@ -330,6 +386,8 @@ class ImportWoS:
 
         print("Postprocessing citations.")
         self.postprocess_citations()
+        print("Postprocessing timestamps.")
+        self.postprocess_timestamps()
 
         print("Done.")
         
