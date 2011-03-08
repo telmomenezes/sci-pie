@@ -89,7 +89,7 @@ def create_db(dbpath):
     safe_execute(cur, "ALTER TABLE article_organization ADD COLUMN organization_id INTEGER")
         
     # indexes
-    #self.safe_execute(cur, "CREATE INDEX link_blog_orig_targ ON link (blog_orig, blog_targ)")
+    safe_execute(cur, "CREATE INDEX articles_wos_id ON articles (wos_id)")
 
     conn.commit()
     cur.close()
