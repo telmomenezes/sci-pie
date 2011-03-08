@@ -24,6 +24,9 @@ def create_db(dbpath):
     # create journal table
     safe_execute(cur, "CREATE TABLE publications (id INTEGER PRIMARY KEY)")
     safe_execute(cur, "ALTER TABLE publications ADD COLUMN title TEXT")
+    safe_execute(cur, "ALTER TABLE publications ADD COLUMN iso_title TEXT")
+    safe_execute(cur, "ALTER TABLE publications ADD COLUMN type TEXT")
+    safe_execute(cur, "ALTER TABLE publications ADD COLUMN ISSN TEXT")
 
     # create issue table
     safe_execute(cur, "CREATE TABLE issues (id INTEGER PRIMARY KEY)")

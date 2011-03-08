@@ -36,6 +36,25 @@ class ImportWoS:
     def clean_organization(self):
         self.organization = {}
 
+    def pub_id(self):
+        cur = self.conn.cursor()
+
+        cur.execute("SELECT id FROM publications WHERE iso_title=?", (self.publication['iso_title'],))
+        row = cur.fetchone()
+        if row is None:
+            cur.execute("INSERT INTO publications (title, iso_title, type, ISSN) VALUES (?, ?, ?, ?)",
+                (self.publication['title'],
+                self.publication['iso_title'],
+                self.publication['type'],
+                self.publication['ISSN']))
+
+            id = cur.lastrowid
+            cur.close()
+            return id
+        else:
+            cur.close()
+            return row[0]
+
     def issue_id(self):
         cur = self.conn.cursor()
         
@@ -50,7 +69,7 @@ class ImportWoS:
                 issue = self.issue['issue']
             cur.execute("INSERT INTO issues (wos_id, pub_id, year, date, volume, issue) VALUES (?, ?, ?, ?, ?, ?)",
                 (self.issue['id'],
-                -1,
+                self.pub_id(),
                 self.issue['year'],
                 date,
                 self.issue['volume'],
