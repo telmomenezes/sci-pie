@@ -21,14 +21,14 @@ def create_db(dbpath):
     conn = sqlite3.connect(dbpath)
     cur = conn.cursor()
 
-    # create journal table
+    # create journals table
     safe_execute(cur, "CREATE TABLE publications (id INTEGER PRIMARY KEY)")
     safe_execute(cur, "ALTER TABLE publications ADD COLUMN title TEXT")
     safe_execute(cur, "ALTER TABLE publications ADD COLUMN iso_title TEXT")
     safe_execute(cur, "ALTER TABLE publications ADD COLUMN type TEXT")
     safe_execute(cur, "ALTER TABLE publications ADD COLUMN ISSN TEXT")
 
-    # create issue table
+    # create issues table
     safe_execute(cur, "CREATE TABLE issues (id INTEGER PRIMARY KEY)")
     safe_execute(cur, "ALTER TABLE issues ADD COLUMN wos_id TEXT")
     safe_execute(cur, "ALTER TABLE issues ADD COLUMN pub_id INTEGER")
@@ -37,7 +37,7 @@ def create_db(dbpath):
     safe_execute(cur, "ALTER TABLE issues ADD COLUMN volume INTEGER")
     safe_execute(cur, "ALTER TABLE issues ADD COLUMN issue INTEGER")
 
-    # create article table
+    # create articles table
     safe_execute(cur, "CREATE TABLE articles (id INTEGER PRIMARY KEY)")
     safe_execute(cur, "ALTER TABLE articles ADD COLUMN wos_id TEXT")
     safe_execute(cur, "ALTER TABLE articles ADD COLUMN title TEXT")
@@ -49,7 +49,7 @@ def create_db(dbpath):
     safe_execute(cur, "ALTER TABLE articles ADD COLUMN page_count INTEGER")
     safe_execute(cur, "ALTER TABLE articles ADD COLUMN language TEXT")
     
-    # create author table
+    # create authors table
     safe_execute(cur, "CREATE TABLE authors (id INTEGER PRIMARY KEY)")
     safe_execute(cur, "ALTER TABLE authors ADD COLUMN name TEXT")
     
@@ -58,7 +58,16 @@ def create_db(dbpath):
     safe_execute(cur, "ALTER TABLE article_author ADD COLUMN article_id INTEGER")
     safe_execute(cur, "ALTER TABLE article_author ADD COLUMN author_id INTEGER")
     
-    # create citation table
+    # create keywords table
+    safe_execute(cur, "CREATE TABLE keywords (id INTEGER PRIMARY KEY)")
+    safe_execute(cur, "ALTER TABLE keywords ADD COLUMN keyword TEXT")
+    
+    # create article_keyword table
+    safe_execute(cur, "CREATE TABLE article_keyword (id INTEGER PRIMARY KEY)")
+    safe_execute(cur, "ALTER TABLE article_keyword ADD COLUMN article_id INTEGER")
+    safe_execute(cur, "ALTER TABLE article_keyword ADD COLUMN keyword_id INTEGER")
+    
+    # create citations table
     safe_execute(cur, "CREATE TABLE citations (id INTEGER PRIMARY KEY)")
     safe_execute(cur, "ALTER TABLE citations ADD COLUMN orig_id INTEGER")
     safe_execute(cur, "ALTER TABLE citations ADD COLUMN target_id INTEGER")

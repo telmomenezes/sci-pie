@@ -106,6 +106,30 @@ class ImportWoS:
 
         cur.close()
 
+    def keyword_id(self, keyword):
+        cur = self.conn.cursor()
+
+        cur.execute("SELECT id FROM keywords WHERE keyword=?", (keyword,))
+        row = cur.fetchone()
+        if row is None:
+            cur.execute("INSERT INTO keywords (keyword) VALUES (?)", (keyword,))
+            id = cur.lastrowid
+            cur.close()
+            return id
+        else:
+            cur.close()
+            return row[0]
+
+    def write_keywords(self, article_id):
+        cur = self.conn.cursor()
+
+        for keyword in self.keywords:
+            kid = self.keyword_id(keyword)
+            cur.execute("INSERT INTO article_keyword (article_id, keyword_id) VALUES (?, ?)",
+                (article_id, kid))
+
+        cur.close()
+
     def write_article(self):
         
         cur = self.conn.cursor()
@@ -129,6 +153,7 @@ class ImportWoS:
         article_id = cur.lastrowid
         
         self.write_authors(article_id)
+        self.write_keywords(article_id)
         
         self.conn.commit()
         cur.close()
