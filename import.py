@@ -14,9 +14,19 @@ import datetime
 import time
 
 
+def safedict(dict, index, default):
+    if index in dict:
+        return dict[index]
+    else:
+        return default
+
+
 class ImportWoS:
 
-    def __init__(self):
+    def __init__(self, dbpath, dir):
+        self.dbpath = dbpath
+        self.dir = dir
+        
         self.tag = ''
         self.data = ''
         
@@ -42,16 +52,19 @@ class ImportWoS:
         self.organization = {}
 
     def pub_id(self):
+        if not 'ISSN' in self.publication:
+            return -1
+
         cur = self.conn.cursor()
 
-        cur.execute("SELECT id FROM publications WHERE iso_title=?", (self.publication['iso_title'],))
+        cur.execute("SELECT id FROM publications WHERE ISSN=?", (self.publication['ISSN'],))
         row = cur.fetchone()
         if row is None:
             cur.execute("INSERT INTO publications (title, iso_title, type, ISSN) VALUES (?, ?, ?, ?)",
-                (self.publication['title'],
-                self.publication['iso_title'],
-                self.publication['type'],
-                self.publication['ISSN']))
+                (safedict(self.publication, 'title', ''),
+                safedict(self.publication, 'iso_title', ''),
+                safedict(self.publication, 'type', ''),
+                safedict(self.publication, 'ISSN', '')))
 
             id = cur.lastrowid
             cur.close()
@@ -67,18 +80,15 @@ class ImportWoS:
         row = cur.fetchone()
         if row is None:
             date = ''
-            if 'date' in self.issue:
-                date = self.issue['date']
-            issue = '-1'
             if 'issue' in self.issue:
                 issue = self.issue['issue']
             cur.execute("INSERT INTO issues (wos_id, pub_id, year, date, volume, issue) VALUES (?, ?, ?, ?, ?, ?)",
                 (self.issue['id'],
                 self.pub_id(),
-                self.issue['year'],
-                date,
-                self.issue['volume'],
-                issue))
+                safedict(self.issue, 'year', -1),
+                safedict(self.issue, 'date', ''),
+                safedict(self.issue, 'volume', -1),
+                safedict(self.issue, 'issue', -1)))
             
             id = cur.lastrowid
             cur.close()
@@ -149,19 +159,13 @@ class ImportWoS:
 
         cur.execute("SELECT id FROM organizations WHERE name=?", (org['name'],))
         row = cur.fetchone()
-        province_state = ''
-        if province_state in org:
-            province_state = org['province_state']
-        postal_code = ''
-        if postal_code in org:
-            postal_code = org['postal_code']
         if row is None:
             cur.execute("INSERT INTO organizations (name, city, province_state, country, postal_code) VALUES (?, ?, ?, ?, ?)",
                 (org['name'],
-                org['city'],
-                province_state,
-                org['country'],
-                postal_code))
+                safedict(org, 'city', ''),
+                safedict(org, 'province_state', ''),
+                safedict(org, 'country', ''),
+                safedict(org, 'postal_code', '')))
             id = cur.lastrowid
             cur.close()
             return id
@@ -173,31 +177,30 @@ class ImportWoS:
         cur = self.conn.cursor()
 
         for org in self.organizations:
-            oid = self.org_id(org)
-            cur.execute("INSERT INTO article_organization (article_id, organization_id) VALUES (?, ?)",
-                (article_id, oid))
+            if 'name' in org:
+                oid = self.org_id(org)
+                cur.execute("INSERT INTO article_organization (article_id, organization_id) VALUES (?, ?)",
+                    (article_id, oid))
 
         cur.close()
 
     def write_article(self):
+        if not 'id' in self.article:
+            return
         
         cur = self.conn.cursor()
-        
-        abstract = ''
-        if 'abstract' in self.article:
-            abstract = self.article['abstract']
 
         cur.execute(("INSERT INTO articles (wos_id, title, abstract, issue_id, type, beginning_page, end_page, page_count, language)"
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"),
             (self.article['id'],
-            self.article['title'],
-            abstract,
+            safedict(self.article, 'title', ''),
+            safedict(self.article, 'abstract', ''),
             self.issue_id(),
-            self.article['type'],
-            self.article['beginning_page'],
-            self.article['end_page'],
-            self.article['page_count'],
-            self.article['language']))
+            safedict(self.article, 'type', ''),
+            safedict(self.article, 'beginning_page', -1),
+            safedict(self.article, 'end_page', -1),
+            safedict(self.article, 'page_count', -1),
+            safedict(self.article, 'language', '')))
         
         article_id = cur.lastrowid
         
@@ -372,10 +375,9 @@ class ImportWoS:
         cur.close()
         cur2.close()
 
-    def main(self):
-        self.conn = sqlite3.connect('mdts11.db')
-        
-        fd = open("/Users/telmo/Desktop/mdts11_raw/IC3N000252")
+    def process_file(self, filepath):
+        print("Processing file: %s" % filepath)
+        fd = open(filepath)
         line = fd.readline()
         while (line != "" ):
             tag = line[0:2]
@@ -383,6 +385,24 @@ class ImportWoS:
             self.process(tag, data)
             line = fd.readline()
         self.process('', '')
+        
+        fd.close()
+
+    def process_dir(self, dir):
+        """
+        Process all files in a directory
+        """
+        print('Entering directory %s.' % dir)
+        for item in [f for f in os.listdir(dir)]:
+            fullpath = os.path.join(dir, item)
+            if not os.path.isdir(fullpath):
+                self.process_file(fullpath)
+                
+    def run(self):
+        self.conn = sqlite3.connect(self.dbpath)
+
+        print("Processing files in directory: %s" % self.dir)
+        self.process_dir(self.dir)
 
         print("Postprocessing citations.")
         self.postprocess_citations()
@@ -395,5 +415,5 @@ class ImportWoS:
 
 
 if __name__ == '__main__':
-    ImportWoS().main()
+    ImportWoS('mdts11.db', '/Users/telmo/Desktop/mdts11_raw').run()
 
