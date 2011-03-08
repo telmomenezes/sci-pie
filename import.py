@@ -37,7 +37,31 @@ class ImportWoS:
         self.organization = {}
 
     def issue_id(self):
+        cur = self.conn.cursor()
         
+        cur.execute("SELECT id FROM issues WHERE wos_id=?", (self.issue['id'],))
+        row = cur.fetchone()
+        if row is None:
+            date = ''
+            if 'date' in self.issue:
+                date = self.issue['date']
+            issue = '-1'
+            if 'issue' in self.issue:
+                issue = self.issue['issue']
+            cur.execute("INSERT INTO issues (wos_id, pub_id, year, date, volume, issue) VALUES (?, ?, ?, ?, ?, ?)",
+                (self.issue['id'],
+                -1,
+                self.issue['year'],
+                date,
+                self.issue['volume'],
+                issue))
+            
+            id = cur.lastrowid
+            cur.close()
+            return id
+        else:
+            cur.close()
+            return row[0]
 
     def write_article(self):
         
@@ -52,7 +76,7 @@ class ImportWoS:
             (self.article['id'],
             self.article['title'],
             abstract,
-            -1,
+            self.issue_id(),
             self.article['type'],
             self.article['beginning_page'],
             self.article['end_page'],

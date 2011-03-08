@@ -28,8 +28,11 @@ def create_db(dbpath):
     # create issue table
     safe_execute(cur, "CREATE TABLE issues (id INTEGER PRIMARY KEY)")
     safe_execute(cur, "ALTER TABLE issues ADD COLUMN wos_id TEXT")
-    safe_execute(cur, "ALTER TABLE issues ADD COLUMN date INTEGER")
     safe_execute(cur, "ALTER TABLE issues ADD COLUMN pub_id INTEGER")
+    safe_execute(cur, "ALTER TABLE issues ADD COLUMN year INTEGER")
+    safe_execute(cur, "ALTER TABLE issues ADD COLUMN date TEXT")
+    safe_execute(cur, "ALTER TABLE issues ADD COLUMN volume INTEGER")
+    safe_execute(cur, "ALTER TABLE issues ADD COLUMN issue INTEGER")
 
     # create article table
     safe_execute(cur, "CREATE TABLE articles (id INTEGER PRIMARY KEY)")
