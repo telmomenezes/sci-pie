@@ -387,8 +387,10 @@ class ImportWoS:
                 if len(date_comps) > 1:
                     day = int(date_comps[1])
             
-            d = datetime.date(year, month, day)
-            ts = time.mktime(d.timetuple())
+            ts = 0
+            if year > 1901:
+                d = datetime.date(year, month, day)
+                ts = time.mktime(d.timetuple())
             cur2.execute("UPDATE issues SET timestamp=? WHERE id=?", (ts, issue_id))
         
         self.conn.commit()
