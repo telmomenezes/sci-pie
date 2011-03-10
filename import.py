@@ -442,13 +442,13 @@ class ImportWoS:
     def run(self):
         self.conn = sqlite3.connect(self.dbpath)
 
-        #print("Processing files in directory: %s" % self.dir)
-        #self.process_dir(self.dir)
+        print("Processing files in directory: %s" % self.dir)
+        self.process_dir(self.dir)
 
-        #print("Postprocessing citations.")
-        #self.postprocess_citations()
-        #print("Postprocessing timestamps.")
-        #self.postprocess_timestamps()
+        print("Postprocessing citations.")
+        self.postprocess_citations()
+        print("Postprocessing timestamps.")
+        self.postprocess_timestamps()
         print("Applying timestamps to articles.")
         self.apply_timestamps_to_articles()
 
