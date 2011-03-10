@@ -67,6 +67,7 @@ def create_db(dbpath):
     safe_execute(cur, "ALTER TABLE articles ADD COLUMN end_page INTEGER")
     safe_execute(cur, "ALTER TABLE articles ADD COLUMN page_count INTEGER")
     safe_execute(cur, "ALTER TABLE articles ADD COLUMN language TEXT")
+    safe_execute(cur, "ALTER TABLE articles ADD COLUMN timestamp REAL")
     
     # create authors table
     safe_execute(cur, "CREATE TABLE authors (id INTEGER PRIMARY KEY)")
@@ -107,7 +108,9 @@ def create_db(dbpath):
     safe_execute(cur, "ALTER TABLE article_organization ADD COLUMN organization_id INTEGER")
         
     # indexes
+    safe_execute(cur, "CREATE INDEX articles_id ON articles (id)")
     safe_execute(cur, "CREATE INDEX articles_wos_id ON articles (wos_id)")
+    safe_execute(cur, "CREATE INDEX issues_id ON issues (id)")
     safe_execute(cur, "CREATE INDEX issues_wos_id ON issues (wos_id)")
     safe_execute(cur, "CREATE INDEX publications_ISSN ON publications (ISSN)")
     safe_execute(cur, "CREATE INDEX authors_name ON authors (name)")

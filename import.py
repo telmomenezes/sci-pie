@@ -396,6 +396,24 @@ class ImportWoS:
         self.conn.commit()
         cur.close()
         cur2.close()
+        
+    def apply_timestamps_to_articles(self):
+        cur = self.conn.cursor()
+        cur2 = self.conn.cursor()
+        
+        cur.execute("SELECT id, issue_id FROM articles")
+        for row in cur:
+            article_id = row[0]
+            issue_id = row[1]
+            
+            cur2.execute("SELECT timestamp FROM issues WHERE id=?", (issue_id,))
+            row2 = cur2.fetchone()
+            ts = row2[0]
+            cur2.execute("UPDATE articles SET timestamp=? WHERE id=?", (ts, article_id))
+        
+        self.conn.commit()
+        cur.close()
+        cur2.close()
 
     def process_file(self, filepath):
         self.file_count += 1
@@ -424,13 +442,15 @@ class ImportWoS:
     def run(self):
         self.conn = sqlite3.connect(self.dbpath)
 
-        print("Processing files in directory: %s" % self.dir)
-        self.process_dir(self.dir)
+        #print("Processing files in directory: %s" % self.dir)
+        #self.process_dir(self.dir)
 
-        print("Postprocessing citations.")
-        self.postprocess_citations()
-        print("Postprocessing timestamps.")
-        self.postprocess_timestamps()
+        #print("Postprocessing citations.")
+        #self.postprocess_citations()
+        #print("Postprocessing timestamps.")
+        #self.postprocess_timestamps()
+        print("Applying timestamps to articles.")
+        self.apply_timestamps_to_articles()
 
         print("Done.")
         
