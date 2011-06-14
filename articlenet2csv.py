@@ -31,6 +31,9 @@ def articlenet2csv(dbpath, outpath):
 
     f = open(outpath, 'w')
 
+    conn = sqlite3.connect(dbpath)
+    cur = conn.cursor()
+
     cur.execute("SELECT orig_id, targ_id FROM citations WHERE targ_id>=0")
     for row in cur:
         f.write('%d,%d\n' % (row[0], row[1]))

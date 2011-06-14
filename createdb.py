@@ -106,6 +106,12 @@ def create_db(dbpath):
     safe_execute(cur, "CREATE TABLE article_organization (id INTEGER PRIMARY KEY)")
     safe_execute(cur, "ALTER TABLE article_organization ADD COLUMN article_id INTEGER")
     safe_execute(cur, "ALTER TABLE article_organization ADD COLUMN organization_id INTEGER")
+
+    #create author_citations table
+    safe_execute(cur, "CREATE TABLE author_citations (id INTEGER PRIMARY KEY)")
+    safe_execute(cur, "ALTER TABLE author_citations ADD COLUMN orig_id INTEGER")
+    safe_execute(cur, "ALTER TABLE author_citations ADD COLUMN targ_id INTEGER")
+    safe_execute(cur, "ALTER TABLE author_citations ADD COLUMN timestamp REAL")
         
     # indexes
     safe_execute(cur, "CREATE INDEX articles_id ON articles (id)")
@@ -116,6 +122,7 @@ def create_db(dbpath):
     safe_execute(cur, "CREATE INDEX authors_name ON authors (name)")
     safe_execute(cur, "CREATE INDEX keywords_keyword ON keywords (keyword)")
     safe_execute(cur, "CREATE INDEX organizations_name ON organizations (name)")
+    safe_execute(cur, "CREATE INDEX author_citations_id ON author_citations (id)")
 
     conn.commit()
     cur.close()
