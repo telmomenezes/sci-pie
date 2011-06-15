@@ -123,6 +123,7 @@ def create_db(dbpath):
     safe_execute(cur, "CREATE INDEX keywords_keyword ON keywords (keyword)")
     safe_execute(cur, "CREATE INDEX organizations_name ON organizations (name)")
     safe_execute(cur, "CREATE INDEX author_citations_id ON author_citations (id)")
+    safe_execute(cur, "CREATE INDEX author_citations_orig_targ ON author_citations (orig_id, targ_id)")
     safe_execute(cur, "CREATE INDEX article_author_article_id ON article_author (article_id)")
 
     conn.commit()
