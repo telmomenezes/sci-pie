@@ -44,6 +44,8 @@ def authorcitations(dbpath):
         article_targ_id = row[1]
         cur2.execute("SELECT timestamp FROM articles WHERE id=%d" % article_orig_id)
         row2 = cur2.fetchone()
+        if row2 is None:
+            continue
         citation_ts = float(row2[0])
 
         cur2.execute("SELECT author_id FROM article_author WHERE article_id=%d" % article_orig_id)
@@ -57,14 +59,13 @@ def authorcitations(dbpath):
                 row4 = cur4.fetchone()
                 if row4 is None:
                     cur4.execute("INSERT INTO author_citations (orig_id, targ_id, timestamp) VALUES (%d, %d, %f)" % (author_orig_id, author_targ_id, citation_ts))
-                    conn.commit()
                 else:
                     ca_id = row4[0]
                     ca_ts = float(row4[1])
                     if ca_ts > citation_ts:
                         cur4.execute("UPDATE author_citations SET timestamp=%f WHERE id=%d" % (citation_ts, ca_id))
-                        conn.commit()
 
+    conn.commit()
     cur.close()
     cur2.close()
     cur3.close()
