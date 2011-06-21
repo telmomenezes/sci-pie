@@ -31,7 +31,7 @@ def citations2net(dbpath, outpath):
 
     f = open(outpath, 'w')
 
-    f.write('[nodes\n]')
+    f.write('[nodes]\n')
 
     conn = sqlite3.connect(dbpath)
     cur = conn.cursor()
@@ -43,11 +43,12 @@ def citations2net(dbpath, outpath):
         f.write('id=%d\n' % row[0])
         idts[row[0]] = row[1]
 
-    f.write('[edges\n]')
+    f.write('[edges]\n')
     
     cur.execute("SELECT orig_id, targ_id FROM citations")
     for row in cur:
-        f.write('orig=%d targ=%d ts=%d\n' % (row[0], row[1], idts[row[0]]))
+        if row[0] in idts:
+            f.write('orig=%d targ=%d ts=%d\n' % (row[0], row[1], idts[row[0]]))
 
     cur.close()
     conn.close()

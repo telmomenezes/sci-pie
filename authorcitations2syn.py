@@ -31,7 +31,7 @@ def authorcitations2net(dbpath, outpath):
 
     f = open(outpath, 'w')
 
-    f.write('[nodes\n]')
+    f.write('[nodes]\n')
 
     conn = sqlite3.connect(dbpath)
     cur = conn.cursor()
@@ -40,7 +40,7 @@ def authorcitations2net(dbpath, outpath):
     for row in cur:
         f.write('id=%d\n' % row[0])
 
-    f.write('[edges\n]')
+    f.write('[edges]\n')
 
     cur.execute("SELECT orig_id, targ_id, timestamp FROM author_citations")
     for row in cur:
