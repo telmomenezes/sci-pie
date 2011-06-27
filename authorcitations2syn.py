@@ -25,33 +25,32 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys
 import sqlite3
+from syn.net import Net
 
 
-def authorcitations2net(dbpath, outpath):
+def authorcitations2syn(dbpath, outpath):
 
+    net = Net(outpath)
     f = open(outpath, 'w')
-
-    f.write('[nodes]\n')
+    net.crete_db()
 
     conn = sqlite3.connect(dbpath)
     cur = conn.cursor()
-
+    
+    nodes = {}
     cur.execute("SELECT id FROM authors")
     for row in cur:
-        f.write('id=%d\n' % row[0])
-
-    f.write('[edges]\n')
+        nodes[row[0]] = net.add_node()
 
     cur.execute("SELECT orig_id, targ_id, timestamp FROM author_citations")
     for row in cur:
-        f.write('orig=%d targ=%d ts=%d\n' % (row[0], row[1], row[2]))
+        net.add_edge(nodes[row[0]], nodes[row[1]], row[2])
 
     cur.close()
     conn.close()
-    f.close()
 
     print('Done.')
 
 
 if __name__ == '__main__':
-    authorcitations2net(sys.argv[1], sys.argv[2])
+    authorcitations2syn(sys.argv[1], sys.argv[2])
