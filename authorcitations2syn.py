@@ -32,7 +32,7 @@ def authorcitations2syn(dbpath, outpath):
 
     net = Net(outpath)
     f = open(outpath, 'w')
-    net.crete_db()
+    net.create_db()
 
     conn = sqlite3.connect(dbpath)
     cur = conn.cursor()
