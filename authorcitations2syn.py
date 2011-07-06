@@ -38,7 +38,7 @@ def authorcitations2syn(dbpath, outpath):
     nodes = {}
     cur.execute("SELECT id, name FROM authors")
     for row in cur:
-        label = '%s [%d]' % (row[0], row[1])
+        label = '%s [%d]' % (row[1], row[0])
         nodes[row[0]] = net.add_node(label=label)
 
     cur.execute("SELECT orig_id, targ_id, timestamp FROM author_citations")
