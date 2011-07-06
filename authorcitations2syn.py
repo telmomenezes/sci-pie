@@ -31,16 +31,15 @@ from syn.net import Net
 def authorcitations2syn(dbpath, outpath):
 
     net = Net(outpath)
-    f = open(outpath, 'w')
-    net.create_db()
 
     conn = sqlite3.connect(dbpath)
     cur = conn.cursor()
     
     nodes = {}
-    cur.execute("SELECT id FROM authors")
+    cur.execute("SELECT id, name FROM authors")
     for row in cur:
-        nodes[row[0]] = net.add_node()
+        label = '%s [%d]' % (id, name)
+        nodes[row[0]] = net.add_node(label=label)
 
     cur.execute("SELECT orig_id, targ_id, timestamp FROM author_citations")
     for row in cur:
