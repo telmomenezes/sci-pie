@@ -206,7 +206,7 @@ class ImportWoS:
     def write_article(self):
         if not 'id' in self.article:
             return
-        
+
         cur = self.conn.cursor()
 
         cur.execute(("INSERT INTO articles (wos_id, title, abstract, issue_id, type, beginning_page, end_page, page_count, language)"
@@ -235,7 +235,7 @@ class ImportWoS:
         print ("Article #%d (file #%d): %s" % (self.article_count, self.file_count, self.article['title'])) 
 
     def process(self, newtag, newdata):
-        if newtag == '--':
+        if (newtag == '--') or (newtag == '  '):
             self.data = '%s%s' % (self.data, newdata)
             return
             
@@ -256,7 +256,7 @@ class ImportWoS:
             self.publication['ISSN'] = self.data
     
         # issue
-        elif tag == 'UI':
+        elif tag == 'GA':
             self.issue['id'] = self.data
         elif tag == 'RE':
             self.clean_publication_issue()
@@ -271,13 +271,15 @@ class ImportWoS:
         
         # article
         elif tag == 'UT':
-            # START ARTICLE:
+            # START ARTICLE
+            self.article['id'] = self.data
             pass
-        elif tag == 'EX':
+        elif (tag == 'EX') or (tag == 'ER'):
             self.write_article()
             self.clean_article()
         elif tag == 'T9':
-            self.article['id'] = self.data
+            pass
+            #self.article['id'] = self.data
         elif tag == 'TI':
             self.article['title'] = self.data
         elif tag == 'AB':
