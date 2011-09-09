@@ -448,7 +448,8 @@ class ImportWoS:
 
 if __name__ == '__main__':
     keyword = ''
-    if len(sys.arg) > 3:
+    if len(sys.argv) > 3:
         keyword = sys.argv[3]
+    print 'Starting import with filter: ', keyword
     ImportWoS(sys.argv[1], sys.argv[2], keyword).run()
 
