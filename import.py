@@ -20,10 +20,10 @@ def safedict(dict, index, default):
 
 
 class ImportWoS:
-
-    def __init__(self, dbpath, dir):
+    def __init__(self, dbpath, dir, keyword=''):
         self.dbpath = dbpath
         self.dir = dir
+        self.keyword = keyword.lower()
         
         self.tag = ''
         self.data = ''
@@ -188,6 +188,11 @@ class ImportWoS:
     def write_article(self):
         if not 'id' in self.article:
             return
+
+        if self.keyword != '':
+            if ((self.keyword not in safedict(self.article, 'title', '').lower())
+                and (self.keyword not in safedict(self.article, 'abstract', '').lower())):
+                return
 
         cur = self.conn.cursor()
 
@@ -442,5 +447,8 @@ class ImportWoS:
 
 
 if __name__ == '__main__':
-    ImportWoS(sys.argv[1], sys.argv[2]).run()
+    keyword = ''
+    if len(sys.arg) > 3:
+        keyword = sys.argv[3]
+    ImportWoS(sys.argv[1], sys.argv[2], keyword).run()
 
