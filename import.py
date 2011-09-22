@@ -259,14 +259,13 @@ class ImportWoS:
         # article
         elif tag == 'UT':
             # START ARTICLE
-            self.article['id'] = self.data
+            #self.article['id'] = self.data
             pass
         elif (tag == 'EX') or (tag == 'ER'):
             self.write_article()
             self.clean_article()
         elif tag == 'T9':
-            pass
-            #self.article['id'] = self.data
+            self.article['id'] = self.data
         elif tag == 'TI':
             self.article['title'] = self.data
         elif tag == 'AB':
@@ -452,4 +451,3 @@ if __name__ == '__main__':
         keyword = sys.argv[3]
     print 'Starting import with filter: ', keyword
     ImportWoS(sys.argv[1], sys.argv[2], keyword).run()
-
