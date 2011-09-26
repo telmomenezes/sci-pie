@@ -373,7 +373,7 @@ class ImportWoS:
                 if len(date_comps[0]) >= 3:
                     month = self.str2month(date_comps[0][:3])
                 if len(date_comps) > 1:
-                    if len(date_comps[1] > 0):
+                    if len(date_comps[1]) > 0:
                         day = int(date_comps[1])
             
             ts = 0
