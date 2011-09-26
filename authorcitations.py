@@ -28,6 +28,8 @@ def authorcitations(dbpath):
         row2 = cur2.fetchone()
         if row2 is None:
             continue
+        if row2[0] is None:
+            continue
         citation_ts = float(row2[0])
 
         cur2.execute("SELECT author_id FROM article_author WHERE article_id=%d" % article_orig_id)
