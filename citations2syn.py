@@ -7,37 +7,36 @@ __date__ = "Jun 2011"
 
 import sys
 import sqlite3
+from syn.net import Net
 
 
-def citations2net(dbpath, outpath):
+def citations2syn(dbpath, outpath):
 
-    f = open(outpath, 'w')
-
-    f.write('[nodes]\n')
+    net = Net(outpath)
 
     conn = sqlite3.connect(dbpath)
     cur = conn.cursor()
-
-    idts = {}
-
-    cur.execute("SELECT id, timestamp FROM articles")
-    for row in cur:
-        f.write('id=%d\n' % row[0])
-        idts[row[0]] = row[1]
-
-    f.write('[edges]\n')
     
-    cur.execute("SELECT orig_id, targ_id FROM citations")
+    nodes = {}
+    timestamps = {}
+    cur.execute("SELECT id, title, timestamp FROM articles")
     for row in cur:
-        if row[0] in idts:
-            f.write('orig=%d targ=%d ts=%d\n' % (row[0], row[1], idts[row[0]]))
+        label = '%s [%d]' % (row[1], row[0])
+        nodes[row[0]] = net.add_node(label=label)
+	timestamps[row[0]] = row[2]
+
+    cur.execute("SELECT orig_id, targ_id FROM citations WHERE targ_id>=0")
+    for row in cur:
+	try:
+             net.add_edge(nodes[row[0]], nodes[row[1]], timestamps[row[0]])
+	except:
+	     print 'oops.'
 
     cur.close()
     conn.close()
-    f.close()
 
     print('Done.')
 
 
 if __name__ == '__main__':
-    citations2net(sys.argv[1], sys.argv[2])
+    citations2syn(sys.argv[1], sys.argv[2])
